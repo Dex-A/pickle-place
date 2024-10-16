@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pickle place</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #canvas {
+            display: grid;
+            grid-template-columns: repeat(500, 10px);
+            grid-gap: 1px;
+            justify-content: center;
+            margin-top: 20px;
+            overflow: auto;
+            max-height: 800px;
+        }
+
+        .pixel {
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+        }
+
+        #controls {
+            text-align: center;
+            margin: 20px;
+        }
+
+        #fake-transactions, #pixel-war {
+            margin: 20px;
+            text-align: center;
+        }
+
+        #fake-transactions button, #pixel-war button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #leaderboard {
+            margin: 20px;
+            text-align: center;
+        }
+
+        #chat {
+            margin: 20px;
+            width: 80%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #chatbox {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            background-color: #fff;
+        }
+
+        #chatinput {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>r/place Clone - 500x500</h1>
+
+    <!-- Canvas where players and bots will place pixels -->
+    <div id="canvas">
+        <!-- 500x500 grid will be created dynamically -->
+    </div>
+
+    <!-- Control area -->
+    <div id="controls">
+        <h2>Your Pixel Points: <span id="pixel-points">0</span></h2>
+        <button id="place-pixel">Place Pixel</button>
+        <button id="fill-5x5" style="display:none;">Premium: Fill 5x5</button>
+        <button id="fill-10x10" style="display:none;">Premium Plus: Fill 10x10</button>
+        <button id="fill-circle" style="display:none;">Uber Premium: Fill Circle</button>
+    </div>
+
+    <!-- Fake microtransactions -->
+    <div id="fake-transactions">
+        <h2>Buy Premium</h2>
+        <button id="buy-premium">Buy Premium ($4.99)</button>
+        <button id="buy-premium-plus">Buy Premium Plus ($9.99)</button>
+        <button id="buy-uber-premium">Buy Uber Premium ($19.99)</button>
+    </div>
+
+    <!-- Pixel War Section -->
+    <div id="pixel-war">
+        <h2>Pixel War in Progress!</h2>
+        <button id="join-war">Join Pixel War</button>
+        <h3>War Leaderboard</h3>
+        <ul id="war-leaderboard">
+            <!-- Dynamic leaderboard of pixel war participants -->
+        </ul>
+    </div>
+
+    <!-- Chat section -->
+    <div id="chat">
+        <h2>Chat</h2>
+        <div id="chatbox">
+            <!-- Chat messages appear here -->
+        </div>
+        <input type="text" id="chatinput" placeholder="Type your message here...">
+    </div>
+
+    <script>
+        // Pixel Points
+        let pixelPoints = 0;
+        const pixelPointsDisplay = document.getElementById("pixel-points");
+
+        // Canvas Setup (500x500)
+        const canvas = document.getElementById("canvas");
+        for (let i = 0; i < 500 * 500; i++) {
+            const pixel = document.createElement("div");
+            pixel.className = "pixel";
+            pixel.addEventListener("click", () => {
+                pixel.style.backgroundColor = "black"; // Default color when clicked
+                pixelPoints += 10; // Reward points for placing a pixel
+                pixelPointsDisplay.textContent = pixelPoints;
+            });
+            canvas.appendChild(pixel);
+        }
+
+        // Premium Rank Logic
+        const premiumTools = {
+            "Premium": document.getElementById("fill-5x5"),
+            "Premium Plus": document.getElementById("fill-10x10"),
+            "Uber Premium": document.getElementById("fill-circle")
+        };
+
+        function unlockPremiumTools(rank) {
+            if (rank === "Premium") {
+                premiumTools["Premium"].style.display = "inline-block";
+            } else if (rank === "Premium Plus") {
+                premiumTools["Premium"].style.display = "inline-block";
+                premiumTools["Premium Plus"].style.display = "inline-block";
+            } else if (rank === "Uber Premium") {
+                premiumTools["Premium"].style.display = "inline-block";
+                premiumTools["Premium Plus"].style.display = "inline-block";
+                premiumTools["Uber Premium"].style.display = "inline-block";
+            }
+        }
+
+        // Fake Microtransactions
+        const premiumButtons = document.querySelectorAll("#fake-transactions button");
+        premiumButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                alert("Transaction Complete! You have received Premium benefits.");
+                // Unlock premium tools based on what was "purchased"
+                if (button.id === "buy-premium") unlockPremiumTools("Premium");
+                if (button.id === "buy-premium-plus") unlockPremiumTools("Premium Plus");
+                if (button.id === "buy-uber-premium") unlockPremiumTools("Uber Premium");
+            });
+        });
+
+        // Premium Tool: Fill 5x5 Area
+        document.getElementById("fill-5x5").addEventListener("click", () => {
+            fillArea(5);
+        });
+
+        // Premium Tool: Fill 10x10 Area
+        document.getElementById("fill-10x10").addEventListener("click", () => {
+            fillArea(10);
+        });
+
+        // Premium Tool: Fill Circle Area
+        document.getElementById("fill-circle").addEventListener("click", () => {
+            fillCircle(25); // Example: Fill circle with radius 25 pixels
+        });
+
+        // Helper functions for premium tools
+        function fillArea(size) {
+            const pixels = document.querySelectorAll('.pixel');
+            for (let i = 0; i < size * size; i++) {
+                pixels[i].style.backgroundColor = "blue"; // Example color for premium
+            }
+            pixelPoints += size * size * 10; // Reward based on area filled
+            pixelPointsDisplay.textContent = pixelPoints;
+        }
+
+        function fillCircle(radius) {
+            const pixels = document.querySelectorAll('.pixel');
+            const center = Math.floor(500 / 2) * 500 + Math.floor(500 / 2);
+            for (let i = 0; i < pixels.length; i++) {
+                let row = Math.floor(i / 500);
+                let col = i % 500;
+                let dx = col - 250; // Centered at middle of canvas
+                let dy = row - 250;
+                if (dx * dx + dy * dy <= radius * radius) {
+                    pixels[i].style.backgroundColor = "green"; // Example circle color
+                }
+            }
+            pixelPoints += Math.PI * radius * radius * 10; // Reward based on circle area
+            pixelPointsDisplay.textContent = pixelPoints;
+        }
+
+        // Pixel War logic remains the same
+        let warInProgress = false;
+        const joinWarButton = document.getElementById("join-war");
+        const warLeaderboard = document.getElementById("war-leaderboard");
+
+        joinWarButton.addEventListener("click", () => {
+            if (!warInProgress) {
+                alert("No Pixel War active currently.");
+                return;
+            }
+
+            alert("You joined the Pixel War! Start placing pixels!");
+        });
+
+        // Start Pixel War every 15 minutes
+        function startPixelWar() {
+            warInProgress = true;
+            alert("Pixel War started! No cooldown in the highlighted zone!");
+
+            // Pixel War lasts 5 minutes
+            setTimeout(() => {
+                warInProgress = false;
+                alert("Pixel War ended!");
+
+                // Calculate winner (simplified for now)
+                const winner = "Player123"; // Placeholder
+                warLeaderboard.innerHTML = `<li>${winner}: 1000 Points</li>`;
+                pixelPoints += 1000;
+                pixelPointsDisplay.textContent = pixelPoints;
+
+            }, 300000); // 5 minutes in milliseconds
+        }
+
+        setInterval(startPixelWar, 900000); // Start a new Pixel War every 15 minutes
+
+        // Chat system (placeholder)
+        const chatbox = document.getElementById("chatbox");
+        const chatinput = document.getElementById("chatinput");
+
+        chatinput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                const message = chatinput.value;
+                chatbox.innerHTML += `<p>You: ${message}</p>`;
+                chatinput.value = "";
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+        });
+    </script>
+
+</body>
+</html>
